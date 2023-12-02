@@ -20,13 +20,6 @@ class ApiService:
         self._columns = None
 
     def initialize_model(self):
-        directorio_actual = os.getcwd()
-        contenido_directorio = os.listdir(directorio_actual)
-        archivos = [item for item in contenido_directorio if os.path.isfile(os.path.join(directorio_actual, item))]
-        print("Archivos:")
-        print(archivos)
-        data_path = os.path.abspath("data.csv")
-        print(data_path)
         data = pd.read_csv(filepath_or_buffer="./data/data.csv")
         self.model.set_use_top_10(False)
         features, target = self.model.preprocess(

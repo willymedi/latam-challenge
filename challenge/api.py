@@ -23,19 +23,14 @@ async def get_health() -> dict:
     }
 
 
-
-async def get_api_service():
+@app.post("/predict", status_code=200)
+async def post_predict(request: Request) -> dict:
     global api_service
     if api_service is None:
         api_service = ApiService()
-        await api_service.initialize_model()
-    return api_service
-
-@app.post("/predict", status_code=200)
-async def post_predict(request: Request) -> dict:
-    service = await get_api_service()
+        api_service.initialize_model()
     body = await request.json()
     flights = body["flights"]
     flight = flights[0]
-    response = service.predict(flight)
-    return {"prediction": response}
+    response = api_service.predict(flight)
+    return JSONResponse(content=response, status_code=200)
