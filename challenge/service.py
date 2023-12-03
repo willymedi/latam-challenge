@@ -19,6 +19,10 @@ class ApiService:
         self.model = DelayModel()
         self._columns = None
 
+    def _validate_column(self, column_name, value):
+        if value not in self._columns:
+            raise HTTPException(status_code=400, detail=f"El valor de {column_name} no es válido")
+
     def initialize_model(self):
         data = pd.read_csv(filepath_or_buffer="./data/data.csv")
         self.model.set_use_top_10(False)
@@ -34,15 +38,13 @@ class ApiService:
         opera = f"{Fields.OPERA.value}_{flight[Fields.OPERA.value]}"
         tipovuelo = f"{Fields.TIPOVUELO.value}_{flight[Fields.TIPOVUELO.value]}"
         mes = f"{Fields.MES.value}_{flight[Fields.MES.value]}"
-        if opera not in self._columns:
-            raise HTTPException(status_code=400, detail="El valor de opera no es valido")
-        if tipovuelo not in self._columns:
-            raise HTTPException(status_code=400, detail="El valor de tipovuelo no es valido")
-        if mes not in self._columns:
-            raise HTTPException(status_code=400, detail="El valor de mes no es valido")
-        input = self._prepare_for_predict(opera, tipovuelo, mes)
-        result = self.model.predict(input)     
-        return {"predict": result}
+        
+        for column_name, value in zip([Fields.OPERA, Fields.TIPOVUELO, Fields.MES], [opera, tipovuelo, mes]):
+            self._validate_column(column_name.value, value)
+
+        input_data = self._prepare_for_predict(opera, tipovuelo, mes)
+        prediction_result = self.model.predict(input_data)
+        return {"predict": prediction_result}
 
     def _prepare_for_predict(self, opera:str, tipovuelo:str, mes:str) -> pd.DataFrame:
         index_opera = self._columns.index(opera)
