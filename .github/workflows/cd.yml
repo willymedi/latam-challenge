@@ -1,0 +1,26 @@
+name: Deploy Google cloud
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  PROJECT_ID: latam-api-406904
+  SERVICE: YOUR_SERVICE_NAME
+  REGION: YOUR_SERVICE_REGION
+
+jobs:
+  job_id:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+
+
+    - id: 'deploy'
+      uses: 'google-github-actions/deploy-appengine@v1'
+
+    - id: 'test'
+      run: 'curl "${{ steps.deploy.outputs.url }}"'
